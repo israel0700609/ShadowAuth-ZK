@@ -1,0 +1,82 @@
+# ========================
+# Python
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+*.whl
+
+# ========================
+# Node.js
+# ========================
+node_modules/
+package-lock.json
+
+# ========================
+# Circom / SnarkJS Artifacts
+# ========================
+circuits/build/*
+!circuits/build/.gitkeep
+*.r1cs
+*.wasm
+*.wtns
+*.sym
+*.zkey
+*.ptau
+verification_key.json
+proof.json
+public.json
+witness.json
+
+# ========================
+# Keys & Secrets
+# ========================
+keys/*
+!keys/.gitkeep
+*.pem
+*.key
+*.secret
+.env
+
+# ========================
+# IDE & OS
+# ========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ========================
+# Testing & Coverage
+# ========================
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# ========================
+# Mypy
+# ========================
+.mypy_cache/
+
+# ========================
+# Ruff
+# ========================
+.ruff_cache/
+
+# ========================
+# Distribution
+# ========================
+*.tar.gz
+*.zip
