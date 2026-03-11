@@ -9,6 +9,7 @@ private inputs for the Circom ZKP circuit.
 
 from dataclasses import dataclass
 from typing import List
+
 import poseidon_wrapper
 
 
@@ -39,13 +40,6 @@ class MerkleTree:
         tree (List[List[int]]): The 2D representation of the tree, where tree[0]
                                 is the leaf layer and tree[-1] is the root.
     """
-
-
-from typing import List
-import poseidon_wrapper  # ודא שהקובץ הזה באותה תיקייה
-
-
-class MerkleTree:
     def __init__(self, depth: int, leaves: List[int], zero_value: int = 0):
         """
         Initializes and constructs the Merkle Tree.
