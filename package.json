@@ -1,5 +1,13 @@
 {
+  "scripts": {
+    "test:circuits": "mocha tests/circuits/test_circuit.js --timeout 180000"
+  },
   "dependencies": {
+    "circomlib": "^2.0.5",
     "circomlibjs": "^0.1.7"
+  },
+  "devDependencies": {
+    "circom_tester": "^0.0.24",
+    "mocha": "^11.7.5"
   }
 }
