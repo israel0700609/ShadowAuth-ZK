@@ -17,9 +17,10 @@ import pytest
 import key_manager
 import poseidon_wrapper
 from merkle_tree import MerkleProof, MerkleTree
+from src.common import constants
 
 # BN128 scalar field prime
-BN128_P = 21888242871839275222246405745257275088548364400416034343698204186575808495617
+BN128_P = constants.BN128_SCALAR_FIELD
 
 # ---------------------------------------------------------------------------
 # Canonical circomlibjs reference test vectors
