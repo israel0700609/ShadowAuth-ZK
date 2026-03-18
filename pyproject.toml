@@ -5,7 +5,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 [project]
 name = "shadowauth-zk"
 version = "0.1.0"
-description = "Zero-Knowledge Proof Anonymous Peer Authentication over Network Covert Channels"
+description = "Zero-Knowledge Proof metadata-private authentication over an asynchronous dead-drop mixnet"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -24,7 +24,6 @@ classifiers = [
     "Topic :: Security :: Cryptography",
 ]
 dependencies = [
-    "scapy>=2.5.0",
     "cryptography>=41.0.0",
     "click>=8.1.0",
     "pydantic>=2.0.0",

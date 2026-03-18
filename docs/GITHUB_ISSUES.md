@@ -225,7 +225,7 @@ Circuit compiles with `circom --r1cs --wasm --sym`. Valid witness generates succ
 |---|---|---|---|
 | 4 | `chore(circuits): Compilation & Trusted Setup Scripts` | `chore`, `circuits` | `core-zk` |
 | 5 | `feat(crypto): Python ZKP Wrappers — SnarkJS Prover & Verifier` | `feature`, `crypto` | `core-zk` |
-| 6 | `feat(network): Covert Channel Transport Layer — ICMP & DNS` | `feature`, `network` | `transport` |
+| 6 | `feat(network): Asynchronous Dead-Drop Relay Transport Layer` | `feature`, `network` | `transport` |
 | 7 | `feat(server): Server Listener & Challenge Generator` | `feature`, `server` | `application` |
 | 8 | `feat(client): Client CLI & Handshake Flow` | `feature`, `client` | `application` |
 | 9 | `feat(crypto): ECDH Key Agreement & AES-256-GCM Session` | `feature`, `crypto` | `session` |
