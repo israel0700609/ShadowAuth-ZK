@@ -5,7 +5,7 @@ build-backend = "setuptools.backends._legacy:_Backend"
 [project]
 name = "shadowauth-zk"
 version = "0.1.0"
-description = "Zero-Knowledge Proof metadata-private authentication over an asynchronous dead-drop mixnet"
+description = "Zero-Knowledge proof toolkit focused on circuits and cryptographic primitives"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
@@ -39,10 +39,6 @@ dev = [
     "mypy>=1.5.0",
     "pre-commit>=3.4.0",
 ]
-
-[project.scripts]
-shadowauth-client = "src.client.cli:main"
-shadowauth-server = "src.server.listener:main"
 
 [tool.ruff]
 target-version = "py310"
