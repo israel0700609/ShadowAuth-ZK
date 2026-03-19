@@ -175,6 +175,37 @@ python -m src.client.cli --target <server-id>
 
 ## Usage
 
+### Circuit Build and Setup
+
+The project includes three automation scripts for the full Circom + Groth16 pipeline:
+
+```bash
+# 1) Compile ShadowAuth.circom -> R1CS, WASM, SYM
+./circuits/scripts/compile_circuit.sh
+
+# 2) Run trusted setup (ptau + phase 2 contribution + keys)
+./circuits/scripts/trusted_setup.sh
+
+# 3) Generate witness from input JSON
+./circuits/scripts/generate_witness.sh circuits/build/input.json
+```
+
+Generated artifacts are stored in `circuits/build/`:
+
+- `ShadowAuth.r1cs`
+- `ShadowAuth.sym`
+- `ShadowAuth_js/` (contains `ShadowAuth.wasm` and `generate_witness.js`)
+- `proving_key.zkey`
+- `verification_key.json`
+- `witness.wtns`
+
+Notes:
+
+- Scripts are idempotent: rerunning them reuses existing artifacts where possible.
+- `trusted_setup.sh` includes an entropy contribution step. Override with `ZKEY_ENTROPY="..."`.
+- Force regeneration of setup outputs with `FORCE_REBUILD=1 ./circuits/scripts/trusted_setup.sh`.
+- Override ptau handling with `PTAU_FILE`, `PTAU_URL`, or `PTAU_POWER` environment variables.
+
 ### Running Tests
 
 ```bash
