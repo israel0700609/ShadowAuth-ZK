@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">🛡️ ShadowAuth-ZK</h1>
   <p align="center">
-    <strong>Zero-Knowledge Proof Anonymous Peer Authentication over Network Covert Channels</strong>
+    <strong>Zero-Knowledge metadata-private authentication over an asynchronous dead-drop mixnet</strong>
   </p>
   <p align="center">
     <a href="#overview">Overview</a> •
@@ -17,7 +17,7 @@
 
 ## Overview
 
-**ShadowAuth-ZK** is a Zero-Knowledge Proof (ZKP) based Anonymous Peer Authentication system operating over Network Covert Channels. It allows a client to prove authorization to a server **without revealing its specific identity, credentials, or triggering Deep Packet Inspection (DPI) and Intrusion Detection Systems (IDS)**.
+**ShadowAuth-ZK** is a Zero-Knowledge Proof (ZKP) based anonymous authentication and messaging foundation designed for metadata privacy. It allows a client to prove authorization to a server **without revealing specific identity or credentials while maintaining a constant asynchronous pulse pattern**.
 
 ### Key Mechanisms
 
@@ -26,7 +26,7 @@
 | **Authorization** | Merkle Tree of authorized user public keys |
 | **Authentication (ZKP)** | Circom-based zk-SNARK (Groth16) proving knowledge of a private key corresponding to a leaf in the Merkle Tree |
 | **Anti-Replay & Session Binding** | The ZKP circuit binds a Server Challenge (Nonce) and a Client Ephemeral Public Key (ECDH) into a `responseHash` constraint |
-| **Transport** | Covert channel communication (ICMP/Ping or DNS tunneling) to evade firewall detection |
+| **Transport** | Asynchronous dead-drop heartbeat packets through relay mailbox slots |
 
 ## Architecture
 
@@ -34,8 +34,8 @@
 ┌──────────────────────────────────────────────────────────────────┐
 │                         ShadowAuth-ZK                            │
 │                                                                  │
-│  ┌─────────────┐    Covert Channel     ┌──────────────────────┐  │
-│  │   Client     │  (ICMP / DNS Tunnel) │   Server              │  │
+│  ┌─────────────┐   Pulse / Mix Relay   ┌──────────────────────┐  │
+│  │   Client     │  (Real or Noise pkt) │   Server              │  │
 │  │             │◄────────────────────►│                      │  │
 │  │  • CLI       │                      │  • Listener          │  │
 │  │  • Prover    │                      │  • Challenge Gen     │  │
@@ -57,7 +57,7 @@
 ```
 Client                                          Server
   │                                               │
-  │  ──── [1] HELLO (covert) ────────────────►   │
+  │  ──── [1] HEARTBEAT_PACKET (real/noise) ──► │
   │                                               │
   │  ◄─── [2] CHALLENGE (nonce) ─────────────    │
   │                                               │
@@ -83,7 +83,7 @@ Client                                          Server
 |---|---|
 | ZK Circuits | [Circom 2](https://docs.circom.io/) + [SnarkJS](https://github.com/iden3/snarkjs) |
 | Proving System | Groth16 (BN128) |
-| Networking | Python 3.10+ / [Scapy](https://scapy.net/) |
+| Networking | Python 3.10+ (`asyncio` pulse + relay mailbox abstractions) |
 | Cryptography | `cryptography` (ECDH, AES-256-GCM), Poseidon Hash |
 | Testing | Pytest (Python), Mocha (Circuits) |
 | CI/CD | GitHub Actions |
@@ -105,7 +105,7 @@ ShadowAuth-ZK/
 ├── src/
 │   ├── client/                 # Client CLI, prover, handshake
 │   ├── server/                 # Server listener, verifier, challenge
-│   ├── network/                # Covert channel transport (ICMP/DNS)
+│   ├── network/                # Pulse engine, relay node, discovery
 │   ├── crypto/                 # Merkle tree, ECDH, AES, key management
 │   └── common/                 # Config, constants, logging
 ├── tests/
@@ -133,7 +133,7 @@ ShadowAuth-ZK/
 - **Node.js** 18+ & npm
 - **Circom** 2.1+ ([Installation](https://docs.circom.io/getting-started/installation/))
 - **SnarkJS** (`npm install -g snarkjs`)
-- Root/Administrator privileges (required for raw socket operations)
+
 
 ### Installation
 
@@ -166,14 +166,45 @@ chmod +x circuits/scripts/*.sh
 # Generate Merkle tree from authorized keys
 python -m src.crypto.key_manager generate --output keys/
 
-# Start the server (requires elevated privileges)
-sudo python -m src.server.listener --transport icmp --port 0
+# Start the server
+python -m src.server.listener --port 0
 
 # Run the client handshake
-sudo python -m src.client.cli --target <server-ip> --transport icmp
+python -m src.client.cli --target <server-id>
 ```
 
 ## Usage
+
+### Circuit Build and Setup
+
+The project includes three automation scripts for the full Circom + Groth16 pipeline:
+
+```bash
+# 1) Compile ShadowAuth.circom -> R1CS, WASM, SYM
+./circuits/scripts/compile_circuit.sh
+
+# 2) Run trusted setup (ptau + phase 2 contribution + keys)
+./circuits/scripts/trusted_setup.sh
+
+# 3) Generate witness from input JSON
+./circuits/scripts/generate_witness.sh circuits/build/input.json
+```
+
+Generated artifacts are stored in `circuits/build/`:
+
+- `ShadowAuth.r1cs`
+- `ShadowAuth.sym`
+- `ShadowAuth_js/` (contains `ShadowAuth.wasm` and `generate_witness.js`)
+- `proving_key.zkey`
+- `verification_key.json`
+- `witness.wtns`
+
+Notes:
+
+- Scripts are idempotent: rerunning them reuses existing artifacts where possible.
+- `trusted_setup.sh` includes an entropy contribution step. Override with `ZKEY_ENTROPY="..."`.
+- Force regeneration of setup outputs with `FORCE_REBUILD=1 ./circuits/scripts/trusted_setup.sh`.
+- Override ptau handling with `PTAU_FILE`, `PTAU_URL`, or `PTAU_POWER` environment variables.
 
 ### Running Tests
 
@@ -223,7 +254,7 @@ This project follows [Conventional Commits](https://www.conventionalcommits.org/
 <type>(<scope>): <subject>
 
 feat(circuits): add Merkle inclusion proof circuit
-fix(network): handle fragmented ICMP payloads
+fix(network): tighten relay mailbox validation
 docs(readme): update installation instructions
 test(crypto): add ECDH key derivation tests
 chore(ci): configure GitHub Actions pipeline
@@ -231,7 +262,7 @@ chore(ci): configure GitHub Actions pipeline
 
 ## Security
 
-> **⚠️ Disclaimer:** This project is for **educational and research purposes only**. Covert channel techniques should only be used in authorized environments. Unauthorized use may violate local laws and regulations.
+> **⚠️ Disclaimer:** This project is for **educational and research purposes only**. Deploy only in authorized environments and follow local laws and regulations.
 
 ## License
 
